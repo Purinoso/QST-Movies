@@ -2,7 +2,7 @@ package qst.initialization
 
 import grails.converters.JSON
 import java.time.format.DateTimeFormatter
-import javax.xml.bind.DatatypeConverter
+// import javax.xml.bind.DatatypeConverter
 
 import qst.genre.Genre
 import qst.movie.Movie
@@ -33,9 +33,8 @@ class JsonInitialization {
             returnArray['releasedDate'] = dateFormatter.format(it.releasedDate)
             returnArray['trailerLink'] = it.trailerLink
             returnArray['genres'] = it.genres
-            returnArray['image'] = DatatypeConverter.printBase64Binary(it.image)
 
             return returnArray
         }
     }
-}
+}   

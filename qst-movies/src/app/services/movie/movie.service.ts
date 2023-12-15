@@ -27,10 +27,9 @@ export default class MovieService {
     moviesJsonObservable.subscribe(
       this.getObserver(movies => {
         this.movies = movies;
+        this.moviesSubject.next(this.movies);
       })
     );
-    
-    this.moviesSubject.next(this.movies);
   }
 
   private getObserver<T>(next?: (value: T) => any) {

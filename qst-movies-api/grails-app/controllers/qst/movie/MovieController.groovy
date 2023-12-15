@@ -8,7 +8,7 @@ class MovieController {
 
     private boolean validateCommand(MovieCommand movieCommand) {
         if (movieCommand.hasErrors()) {
-            respond status: HttpStatus.BAD_REQUEST, message: "Hubo un error con la solicitud a la base de datos."
+            respond status: HttpStatus.BAD_REQUEST, message: "There was an error with the database request."
             return false
         }
 
@@ -17,12 +17,28 @@ class MovieController {
 
     def ajaxGetMovies() {
         try {
-            println "hola llegué"
             Movie[] movies = movieService.getMovies()
             render movies as JSON
         }
         catch(Exception e) {
-            respond status: HttpStatus.NOT_FOUND, message: "No se han encontrado películas."
+            respond status: HttpStatus.NOT_FOUND, message: "No movies have been found."
+        }
+    }
+
+    def getImage(Long movieId) {
+        try {
+            Movie movie = movieService.getMovie(movieId)
+            byte[] image = movie.image
+
+            if (image) {
+                response.setContentType("image/png")
+                response.setContentLength(image.length)
+                response.outputStream << image
+            } else {
+                respond status: HttpStatus.NOT_FOUND, message: "Image not found."
+            }
+        } catch(Exception e) {
+            respond status: HttpStatus.NOT_FOUND, message: "No requested movie with that ID has been found."
         }
     }
 
@@ -32,7 +48,7 @@ class MovieController {
             render movie as JSON
         }
         catch(Exception e) {
-            respond status: HttpStatus.NOT_FOUND, message: "No se ha encontrado ninguna película solicitada con ese ID."
+            respond status: HttpStatus.NOT_FOUND, message: "No requested movie with that ID has been found."
         }
     }
 
@@ -44,7 +60,7 @@ class MovieController {
             respond movie, [status: HttpStatus.OK]
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "Hubo un error al guardar la película."
+            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
         }
     }
 
@@ -56,7 +72,7 @@ class MovieController {
             respond movie, [status: HttpStatus.OK]
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "Hubo un error al actualizar la película."
+            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
         }
     }
 
@@ -66,7 +82,7 @@ class MovieController {
             respond movie, [status: HttpStatus.OK]
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "Hubo un error al eliminar la película."
+            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
         }
     }
 }

@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-// import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import MovieService from '@/services/movie/movie.service';
 import Movie from '@/interfaces/movie.interface';
@@ -10,8 +10,8 @@ import CardMovieComponent from './components/card/card-movie.component';
   selector: 'app-list-movie',
   standalone: true,
   imports: [
-    // CommonModule,
-    // CardMovieComponent,
+    CommonModule,
+    CardMovieComponent
   ],
   templateUrl: './list-movie.component.html',
   styleUrl: './list-movie.component.css'
