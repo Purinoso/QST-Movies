@@ -1,0 +1,23 @@
+<div class="flex flex-col min-h-screen">
+  <header class="p-6">
+      <nav>
+          <ul class="flex justify-center gap-x-5">
+              <li>
+                  <a mat-fab extended color="primary" routerLink="/movie/create">
+                      <mat-icon>add</mat-icon>
+                      Create movie
+                  </a>
+              </li>
+              <li>
+                  <a mat-fab extended color="primary" routerLink="/movie/list">
+                      <mat-icon>list</mat-icon>
+                      Movie list
+                  </a>
+              </li>
+          </ul>
+      </nav>
+  </header>
+  <main class="grow flex justify-center">
+      <router-outlet></router-outlet>
+  </main>
+</div>
