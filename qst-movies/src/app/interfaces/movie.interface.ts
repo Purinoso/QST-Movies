@@ -7,8 +7,8 @@ export default interface Movie {
     description: string;
     rating: number;
     duration: string;
-    releasedDate: string;
+    releaseDate: string;
     trailerLink: string;
-    image: string;
+    imageUrl?: string | null;
     genres: Genre[];
 }

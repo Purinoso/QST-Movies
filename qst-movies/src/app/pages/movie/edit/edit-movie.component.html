@@ -1,1 +1,8 @@
-<p>edit-movie works!</p>
+<section>
+    <header>
+        <h2 class="text-5xl font-black">Edit movie: {{ movie!.title }}</h2>
+    </header>
+    <main>
+        <app-form-movie [movie]="movie" (formSubmit)="onFormSubmit($event)"></app-form-movie>
+    </main>
+</section>

@@ -3,12 +3,22 @@ package qst.movie
 import grails.converters.JSON
 import org.springframework.http.HttpStatus
 
+import qst.image.Image
+import qst.image.ImageService
+import qst.image.ImageCommand
+
 class MovieController {
     def movieService
+    def imageService
+
+    private badRequest() {
+        response.setStatus(HttpStatus.BAD_REQUEST.value())
+        response.getWriter().write("There was an error with the database request.")
+    }
 
     private boolean validateCommand(MovieCommand movieCommand) {
         if (movieCommand.hasErrors()) {
-            respond status: HttpStatus.BAD_REQUEST, message: "There was an error with the database request."
+            badRequest()
             return false
         }
 
@@ -16,73 +26,100 @@ class MovieController {
     }
 
     def ajaxGetMovies() {
-        try {
-            Movie[] movies = movieService.getMovies()
-            render movies as JSON
-        }
-        catch(Exception e) {
-            respond status: HttpStatus.NOT_FOUND, message: "No movies have been found."
-        }
-    }
+        Movie[] movies = movieService.getMovies()
 
-    def getImage(Long movieId) {
-        try {
-            Movie movie = movieService.getMovie(movieId)
-            byte[] image = movie.image
-
-            if (image) {
-                response.setContentType("image/png")
-                response.setContentLength(image.length)
-                response.outputStream << image
-            } else {
-                respond status: HttpStatus.NOT_FOUND, message: "Image not found."
-            }
-        } catch(Exception e) {
-            respond status: HttpStatus.NOT_FOUND, message: "No requested movie with that ID has been found."
+        if (!movies) {
+            response.setStatus(HttpStatus.NOT_FOUND.value())
+            response.getWriter().write("No movies have been found.")
+            return
         }
+
+        render movies as JSON
     }
 
     def ajaxGetMovie(Long id) {
-        try {
-            Movie movie = movieService.getMovie(id)
-            render movie as JSON
+        Movie movie = movieService.getMovie(id)
+
+        if (!movie) {
+            response.setStatus(HttpStatus.NOT_FOUND.value())
+            response.getWriter().write("No requested movie with that ID has been found.")
+            return
         }
-        catch(Exception e) {
-            respond status: HttpStatus.NOT_FOUND, message: "No requested movie with that ID has been found."
-        }
+
+        render movie as JSON
     }
 
-    def save(MovieCommand movieCommand) {
-        if (validateCommand(movieCommand)) return
+    def getImage(Long id) {
+        Movie movie = movieService.getMovie(id)
+        if (!movie) {
+            response.setStatus(HttpStatus.NOT_FOUND.value())
+            response.getWriter().write("No requested movie with that ID has been found.")
+            return
+        }
+
+        Image image = movie.image
+        if (!image) {
+            response.setStatus(HttpStatus.NOT_FOUND.value())
+            response.getWriter().write("Image not found.")
+            return
+        }
+        
+        response.setContentType("image/$image.format")
+        response.setContentLength(image.data.length)
+        response.outputStream << image.data
+    }
+
+    def save() {
+        def movieCommand = MovieCommand.fromRequestData(request.JSON)
+
+        if (movieCommand instanceof MovieCommand) {
+            if (!validateCommand(movieCommand)) return
+        } else {
+            badRequest()
+            return
+        }
 
         try {
+            if (request.JSON.image) {
+                ImageCommand imageCommand = ImageCommand.fromRequestData(request.JSON.image)
+                Image image = imageService.save(imageCommand)
+
+                movieCommand.imageId = image.id
+            }
+
             Movie movie = movieService.save(movieCommand)
-            respond movie, [status: HttpStatus.OK]
+
+            render "Movie saved successfully!"
+            return
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            response.getWriter().write("There was an error saving the movie.")
+            return
         }
     }
 
     def update(MovieCommand movieCommand) {
-        if (validateCommand(movieCommand)) return
+        if (!validateCommand(movieCommand)) return
 
         try {
             Movie movie = movieService.update(movieCommand)
-            respond movie, [status: HttpStatus.OK]
+            response.setStatus(HttpStatus.OK.value())
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            response.getWriter().write("There was an error saving the movie.")
         }
     }
 
     def delete(Long id) {
         try {
             Movie movie = movieService.delete(id)
-            respond movie, [status: HttpStatus.OK]
+            render "Movie deleted successfully!"
         }
         catch(Exception e) {
-            respond status: HttpStatus.INTERNAL_SERVER_ERROR, message: "There was an error saving the movie."
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            response.getWriter().write("There was an error deleting the movie.")
         }
     }
 }

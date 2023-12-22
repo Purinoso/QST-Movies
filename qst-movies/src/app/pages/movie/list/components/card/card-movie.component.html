@@ -1,30 +1,53 @@
-<mat-card class="w-full md:w-1/2 lg:w-1/3">
-    <mat-card-header>
-        <mat-card-title>{{ movie.title }}</mat-card-title>
-    </mat-card-header>
-    <img mat-card-image class="object-cover" src="data:image/jpeg;base64,{{ movie.image }}" alt="Poster of {{ movie.title }}">
-    <mat-card-content>
-        @for (genre of movie.genres; track genre.id) {
-            <mat-chip>{{ genre.name }}</mat-chip>
-        }
-    </mat-card-content>
-    <mat-card-actions>
-        <button mat-raised-button (click)="detailsClicked.emit(movie.id)">See more</button>
-        <button mat-raised-button (click)="watchListClicked.emit(movie.id)">Add to Watchlist</button>
-        <button mat-raised-button>
-            <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Options">
-                <mat-icon>more_vert</mat-icon>
+<mat-card class="h-full !bg-surface !text-accent">
+    @if (isOnWatchlist) {
+        <div class="p-2 bg-surface font-semibold">On my watchlist</div>
+    }
+    @if (movie.imageUrl) {
+        <img mat-card-image class="object-cover aspect-[948/1400]" [src]="movie.imageUrl" alt="Poster of {{ movie.title }}">
+    } @else if (movie.imageUrl === null) {
+        <div class="aspect-[948/1400] flex items-center justify-center">
+            <span class="font-semibold text-xl">Image not found</span>
+        </div>
+    } @else {
+        <div class="aspect-[948/1400] flex items-center justify-center">
+            <mat-spinner></mat-spinner>
+        </div>
+    }
+    <!-- <img mat-card-image class="object-cover aspect-[948/1400]" src="https://th.bing.com/th/id/OIP.1whdGbqS31yNjEVJENsL7QHaLH?rs=1&pid=ImgDetMain" alt="Poster of {{ movie.title }}"> -->
+    <div class="grow flex flex-col gap-y-3 justify-between">
+        <mat-card-header class="!flex-col">
+            <mat-card-title class="!font-black !text-xl !mb-2">{{ movie.title }}</mat-card-title>
+            <div class="text-sm">Released on {{ movie.releaseDate }}</div>
+        </mat-card-header>
+        <mat-card-content class="!flex !flex-wrap !gap-3">
+            @for (genre of movie.genres; track genre.id) {
+                <mat-chip class="!bg-warning !text-sm !font-semibold">{{ genre.name }}</mat-chip>
+            }
+        </mat-card-content>
+        <mat-card-actions class="!grid !grid-cols-3 !gap-2">
+            <button class="col-span-full !bg-primary !text-accent" mat-raised-button (click)="watchlistClicked.emit(movie.id)">
+                @if (isOnWatchlist) {
+                    Remove from watchlist
+                } @else {
+                    Add to Watchlist
+                }
             </button>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="editClicked.emit(movie.id)">
-                    <mat-icon>edit</mat-icon>
-                    <span>Edit</span>
+            <button class="col-span-2 !bg-primary !text-accent" mat-raised-button (click)="detailsClicked.emit(movie.id)">See more</button>
+            <button mat-raised-button>
+                <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Options">
+                    <mat-icon>more_horiz</mat-icon>
                 </button>
-                <button mat-menu-item (click)="deleteClicked.emit(movie.id)">
-                    <mat-icon>delete</mat-icon>
-                    <span>Delete</span>
-                </button>
-            </mat-menu>
-        </button>
-    </mat-card-actions>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editClicked.emit(movie.id)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="deleteClicked.emit(movie.id)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </button>
+        </mat-card-actions>
+    </div>
 </mat-card>

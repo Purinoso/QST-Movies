@@ -1,9 +1,28 @@
-@for (movie of movies; track movie.id) {
-    <app-card-movie 
-        (detailsClicked)="handleDetailsClicked($event)"
-        (watchListClicked)="handleWatchListClicked($event)"
-        (editClicked)="handleEditClicked($event)"
-        (deleteClicked)="handleEditClicked($event)"
-        [movie]="movie"
-    />
-}
+<section>
+    <header class="mb-2">
+        <h2 class="font-bold text-lg text-accent">MOVIES</h2>
+    </header>
+    <main>
+        <div>
+            <mat-form-field>
+                <mat-label>Sort by...</mat-label>
+                <mat-select (selectionChange)="handleSortModeSelectedChanged()" [formControl]="sortModeSelector">
+                    <mat-option value="title">Title</mat-option>
+                    <mat-option value="releaseDate">Release date</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            @for (movie of movies; track movie.id) {
+                <app-card-movie
+                    (detailsClicked)="handleDetailsClicked($event)"
+                    (watchlistClicked)="handleWatchlistClicked($event)"
+                    (editClicked)="handleEditClicked($event)"
+                    (deleteClicked)="handleDeleteClicked($event)"
+                    [movie]="movie"
+                    [isOnWatchlist]="moviesOnWatchlist[movie.id]"
+                />
+            }
+        </div>
+    </main>
+</section>

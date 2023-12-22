@@ -1,1 +1,108 @@
-<p>form-movie works!</p>
+<form [formGroup]="movieForm" (ngSubmit)="handleSubmit()" class="grid lg:grid-cols-[auto_1fr] gap-5">
+    <div class="flex flex-col gap-y-5 justify-center rounded-xl min-w-[50vw] bg-surface mat-elevation-z8 p-12">
+        <mat-form-field>
+            <mat-label>Title</mat-label>
+            <input type="text" matInput placeholder="Enter movie title (e.g., Titanic)"
+                formControlName="title" required>
+            @if (movieForm.controls.title.invalid) {
+                <mat-error>{{ getErrorMessage(movieForm.controls.title) }}</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Description</mat-label>
+            <textarea matInput
+                placeholder="Enter movie description (e.g., Romantic drama about the ill-fated maiden voyage of the RMS Titanic, centered on the love story between passengers Jack and Rose.)"
+                formControlName="description" required></textarea>
+            @if (movieForm.controls.description.invalid) {
+                <mat-error>{{ getErrorMessage(movieForm.controls.description) }}</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Rating</mat-label>
+            <input min="1" max="10" type="number" matInput
+                placeholder="Enter movie rating (e.g., 7.9)" formControlName="rating" required>
+            @if (movieForm.controls.rating.invalid) {
+                <mat-error>{{ getErrorMessage(movieForm.controls.rating) }}</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Trailer link</mat-label>
+            <input matInput
+                placeholder="Enter movie trailer link (e.g., https://www.youtube.com/watch?v=kVrqfYjkTdQ)"
+                formControlName="trailerLink" required>
+            @if (movieForm.controls.trailerLink.invalid && movieForm.controls.trailerLink.hasError('required')) {
+                <mat-error>This field is required.</mat-error>
+            } @else if (movieForm.controls.trailerLink.invalid && movieForm.controls.trailerLink.hasError('pattern')) {
+                <mat-error>Please enter a valid YouTube video URL.</mat-error>
+            }
+        </mat-form-field>
+        <div formGroupName="duration" class="flex flex-col gap-y-2">
+            <span class="text-accent">Duration:</span>
+            <div class="flex gap-x-2">
+                <mat-form-field class="w-20">
+                    <input min="0" max="23" type="number" value="{{ movie?.duration!.split('h')[0] }}" matInput
+                        formControlName="hours" required>
+                    <span matTextSuffix>h</span>
+                </mat-form-field>
+                <mat-form-field class="w-24">
+                    <input min="0" max="59" type="number" value="{{ movie?.duration!.split('h ')[1] }}" matInput
+                        formControlName="minutes" required>
+                    <span matTextSuffix>min</span>
+                </mat-form-field>
+            </div>
+            @if (movieForm.controls.duration.invalid) {
+                @if (
+                    movieForm.controls.duration.controls.hours.hasError('required') ||
+                    movieForm.controls.duration.controls.minutes.hasError('required')
+                ) {
+                    <mat-error>This field is required.</mat-error>
+                } @else if (movieForm.controls.duration.hasError('timeNotZero')) {
+                    <mat-error>Please enter a time greater than zero.</mat-error>
+                } @else if (movieForm.controls.duration.controls.hours.invalid) {
+                    {{ getErrorMessage(movieForm.controls.duration.controls.hours) }}
+                } @else {
+                    {{ getErrorMessage(movieForm.controls.duration.controls.minutes) }}
+                }
+            }
+        </div>
+        <mat-form-field>
+            <mat-label>Release date</mat-label>
+            <input matInput [max]="maxDate" [matDatepicker]="picker" formControlName="releaseDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (movieForm.controls.releaseDate.invalid && movieForm.controls.releaseDate.hasError('maxDateExceeded')) {
+                <mat-error>Date must be today or earlier.</mat-error>
+            } @else if (movieForm.controls.releaseDate.invalid) {
+                <mat-error>{{ getErrorMessage(movieForm.controls.releaseDate) }}</mat-error>
+            }
+        </mat-form-field>
+        <div>
+            <mat-selection-list class="!bg-accent" (selectionChange)="handleGenreSelectionChange($event)">
+                @for (genre of genres; track genre.id) {
+                    <mat-list-option selected="{{ this.selectedGenreIds.includes(genre.id) }}" [value]="genre.id">{{genre.name}}</mat-list-option>
+                }
+            </mat-selection-list>
+            @if (movieForm.hasError('noGenresSelected')) {
+                <mat-error>Please select at least one movie genre.</mat-error>
+            }
+        </div>
+        <button mat-raised-button class="!bg-warning !text-primary !p-3 disabled:opacity-25" type="submit"
+        [disabled]="!movieForm.valid">Submit</button>
+    </div>
+    <!-- Image field -->
+    <div (click)="fileInput.click()" class="text-accent font-bold bg-surface border-warning border-8 rounded-xl aspect-[948/1400] overflow-clip mat-elevation-z8 flex flex-col gap-y-3 justify-center items-center relative hover:cursor-pointer opacity-60 hover:opacity-100">
+        <input #fileInput (change)="handleSelectedImageChange($event)" class="hidden" id="image" accept="image/jpeg, image/png" type="file" formControlName="image">
+        @if (selectedImage || (!selectedImage && movie?.imageUrl)) {
+            <img class="object-cover w-full aspect-[948/1400]" [src]="selectedImage ?? movie?.imageUrl" alt="Selected image">
+            <div class="absolute z-[10] inset-0 flex justify-center items-center">
+                <div class="rounded-2xl bg-primary p-3 flex flex-col justify-center items-center">
+                    <label class="text-xl" for="image">Change uploaded poster image</label>
+                    <mat-icon class="!w-auto !h-auto !text-3xl">upload</mat-icon>
+                </div>
+            </div>
+        } @else {
+            <label class="text-3xl" for="image">Upload poster image</label>
+            <mat-icon class="!w-auto !h-auto !text-5xl">upload</mat-icon>
+        }
+    </div>
+</form>

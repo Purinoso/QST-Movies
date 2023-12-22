@@ -1,1 +1,62 @@
-<p>details-movie works!</p>
+<section class="text-accent grid gap-5 lg:grid-cols-[1fr_2fr] lg:grid-rows-[auto_1fr]">
+    <div class="lg:row-span-full flex flex-col">
+        @if (isOnWatchlist) {
+            <div class="p-2 bg-surface font-semibold">On my watchlist</div>
+        }
+        @if (movie.imageUrl) {
+            <img class="grow object-cover aspect-[948/1400]" [src]="movie.imageUrl" alt="Poster of {{ movie.title }}">
+        } @else if (movie.imageUrl === null) {
+            <div class="grow aspect-[948/1400] flex items-center justify-center bg-surface">
+                <span class="font-semibold text-3xl">Image not found</span>
+            </div>
+        } @else {
+            <div class="grow aspect-[948/1400] flex items-center justify-center bg-surface">
+                <mat-spinner></mat-spinner>
+            </div>
+        }
+    </div>
+    <header class="flex flex-col gap-y-3">
+        <h2 class="text-xl font-black">{{ movie.title }}</h2>
+        <div class="flex flex-col gap-y-1">
+            <span class="text">Release date: {{ movie.releaseDate }}</span>
+            <span class="text">Rating: {{ movie.rating }}</span>
+            <span class="text">Duration: {{ movie.duration }}</span>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            @for (genre of movie.genres; track genre.id) {
+                <mat-chip class="!bg-warning !text-sm !font-semibold">{{ genre.name }}</mat-chip>
+            }
+        </div>
+    </header>
+    <main class="flex flex-col gap-y-3 justify-between">
+        <iframe class="min-h-[400px] grow" [src]="embedTrailerLink" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        <section>
+            <h3 class="text-lg font-semibold mb-1">Movie description</h3>
+            <p>{{ movie.description }}</p>
+        </section>
+        <section class="grid grid-cols-2 gap-2">
+            <button mat-raised-button (click)="handleWatchlistClicked()">
+                @if (isOnWatchlist) {
+                    Remove from watchlist
+                } @else {
+                    Add to Watchlist
+                }
+            </button>
+            <button mat-raised-button>
+                <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Options">
+                    <mat-icon>more_horiz</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="handleEditClicked()">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="handleDeleteClicked()">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </button>
+        </section>
+    </main>
+</section>

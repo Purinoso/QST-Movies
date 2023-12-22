@@ -3,9 +3,13 @@ package qst.movie
 import grails.transaction.Transactional
 
 import qst.genre.Genre
+import qst.image.Image
+import qst.image.ImageService
 
 @Transactional
 class MovieService {
+    ImageService imageService
+
     public Movie[] getMovies() {        
         Movie[] movies = Movie.list()
         return movies
@@ -17,18 +21,20 @@ class MovieService {
     }
 
     public Movie save(MovieCommand movieCommand) {
+        Image image = imageService.getImage(movieCommand.imageId)
+        
         Movie movie = new Movie(
             title: movieCommand.title,
             description: movieCommand.description,
             rating: movieCommand.rating,
             duration: movieCommand.duration,
-            releasedDate: movieCommand.releasedDate,
+            releaseDate: movieCommand.releaseDate,
             trailerLink: movieCommand.trailerLink,
-            image: movieCommand.image
+            image: image
         )
 
-        Genre[] genres = Genre.findAllByIdInList(movieCommand.genreIds ?: [])
-        genres.each { genre ->
+        movieCommand.genreIds.each { genreId ->
+            Genre genre = Genre.get(genreId)
             movie.addToGenres(genre)
         }
 
@@ -42,7 +48,7 @@ class MovieService {
         movie.title = movieCommand.title
         movie.description = movieCommand.description
         movie.rating = movieCommand.rating
-        movie.releasedDate = movieCommand.releasedDate
+        movie.releaseDate = movieCommand.releaseDate
         movie.trailerLink = movieCommand.trailerLink
         movie.image = movieCommand.image
         

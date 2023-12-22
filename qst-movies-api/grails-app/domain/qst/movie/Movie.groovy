@@ -1,18 +1,19 @@
 package qst.movie
 
-import java.time.LocalTime
-import java.time.LocalDate
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 
 import qst.genre.Genre
+import qst.image.Image
 
 class Movie {
     String title
     String description
     Float rating
     LocalTime duration
-    LocalDate releasedDate
-    String trailerLink
-    byte[] image
+    LocalDate releaseDate
+    String trailerLink    
+    Image image
 
     static hasMany = [genres: Genre]
 
@@ -21,8 +22,9 @@ class Movie {
         description nullable: false
         rating nullable: false
         duration nullable: false
-        releasedDate nullable: false
+        releaseDate nullable: false
         trailerLink nullable: false
         image nullable: true
+        genres nullable: true
     }
 }

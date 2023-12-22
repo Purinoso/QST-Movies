@@ -1,8 +1,8 @@
 package qst.initialization
 
 import grails.converters.JSON
-import java.time.format.DateTimeFormatter
-// import javax.xml.bind.DatatypeConverter
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
 import qst.genre.Genre
 import qst.movie.Movie
@@ -19,8 +19,8 @@ class JsonInitialization {
         }
 
         JSON.registerObjectMarshaller(Movie){
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H'h' m'min'")
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("HH'h' mm'min'")
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("MM/dd/yyyy")
 
 			def returnArray = [:]
 
@@ -29,8 +29,8 @@ class JsonInitialization {
             returnArray['title'] = it.title
             returnArray['description'] = it.description
             returnArray['rating'] = it.rating
-            returnArray['duration'] = timeFormatter.format(it.duration)
-            returnArray['releasedDate'] = dateFormatter.format(it.releasedDate)
+            returnArray['duration'] = timeFormatter.print(it.duration)
+            returnArray['releaseDate'] = dateFormatter.print(it.releaseDate)
             returnArray['trailerLink'] = it.trailerLink
             returnArray['genres'] = it.genres
 
