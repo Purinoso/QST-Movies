@@ -22,7 +22,7 @@ export default class MovieCommand {
         this.duration = `${duration.hours.toString().padStart(2, '0')}:${duration.minutes.toString().padStart(2, '0')}`;
         this.releaseDate = releaseDate.toISOString().split('T')[0];
         if (imageBase64) {
-            const imageName = title.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const imageName = title.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replaceAll(' ', '-');
             this.image = createImageFromBase64String(imageName, imageBase64);
         }
     }

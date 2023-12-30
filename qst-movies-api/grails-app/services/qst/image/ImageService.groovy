@@ -19,4 +19,11 @@ class ImageService {
         Image image = Image.get(id)
         return image
     }
+
+    public Image delete(Long id) {
+        Image image = Image.get(id)
+
+        image.delete(flush: true, failOnError: true)
+        return image
+    }
 }

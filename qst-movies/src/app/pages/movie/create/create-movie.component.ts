@@ -27,6 +27,7 @@ export default class CreateMovieComponent {
 
   onFormSubmit(movieCommand: MovieCommand) {
     movieCommand.id = this.nextMovieId;
+    movieCommand.version = 0;
     this.movieService.addMovie(movieCommand);
 
     this.router.navigate(['movie/list']);

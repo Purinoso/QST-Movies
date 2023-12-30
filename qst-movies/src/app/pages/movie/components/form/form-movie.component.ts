@@ -77,7 +77,7 @@ export default class FormMovieComponent implements OnInit {
     ]),
     trailerLink: new FormControl<string>('', [
       Validators.required,
-      Validators.pattern(/^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=[\w-]+(&\S*)?$/)
+      Validators.pattern(/^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=[\w-]+$/)
     ]),
     image: new FormControl()
   })
@@ -152,7 +152,6 @@ export default class FormMovieComponent implements OnInit {
       return;
     }
 
-    const image = this.selectedImage ?? this.movie?.imageUrl;
     const movieCommand = new MovieCommand(
       this.movie?.version,
       this.movieForm.controls.title.value!,
@@ -165,10 +164,10 @@ export default class FormMovieComponent implements OnInit {
         minutes: this.movieForm.controls.duration.controls.minutes.value!
       },
       this.movieForm.controls.releaseDate.value!,
-      image?.toString(),
+      this.selectedImage?.toString(),
       this.movie?.id
     );
-    console.log(movieCommand);
+    
     this.formSubmit.emit(movieCommand);
   }
 }

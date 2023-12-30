@@ -1,6 +1,6 @@
 <section>
     <header>
-        <h2 class="text-5xl font-black">Edit movie: {{ movie!.title }}</h2>
+        <h2 class="font-bold text-lg text-accent">Edit movie: {{ movie!.title }}</h2>
     </header>
     <main>
         <app-form-movie [movie]="movie" (formSubmit)="onFormSubmit($event)"></app-form-movie>

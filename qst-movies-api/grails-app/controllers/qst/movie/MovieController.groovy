@@ -12,8 +12,7 @@ class MovieController {
     def imageService
 
     private badRequest() {
-        response.setStatus(HttpStatus.BAD_REQUEST.value())
-        response.getWriter().write("There was an error with the database request.")
+        render status: HttpStatus.BAD_REQUEST.value(), text: "There was an error with the database request."
     }
 
     private boolean validateCommand(MovieCommand movieCommand) {
@@ -29,8 +28,7 @@ class MovieController {
         Movie[] movies = movieService.getMovies()
 
         if (!movies) {
-            response.setStatus(HttpStatus.NOT_FOUND.value())
-            response.getWriter().write("No movies have been found.")
+            render status: HttpStatus.NOT_FOUND.value(), text: "No movies have been found."
             return
         }
 
@@ -41,8 +39,7 @@ class MovieController {
         Movie movie = movieService.getMovie(id)
 
         if (!movie) {
-            response.setStatus(HttpStatus.NOT_FOUND.value())
-            response.getWriter().write("No requested movie with that ID has been found.")
+            render status: HttpStatus.NOT_FOUND.value(), text: "No requested movie with that ID has been found."
             return
         }
 
@@ -52,15 +49,13 @@ class MovieController {
     def getImage(Long id) {
         Movie movie = movieService.getMovie(id)
         if (!movie) {
-            response.setStatus(HttpStatus.NOT_FOUND.value())
-            response.getWriter().write("No requested movie with that ID has been found.")
+            render status: HttpStatus.NOT_FOUND.value(), text: "No requested movie with that ID has been found."
             return
         }
 
         Image image = movie.image
         if (!image) {
-            response.setStatus(HttpStatus.NOT_FOUND.value())
-            response.getWriter().write("Image not found.")
+            render status: HttpStatus.NOT_FOUND.value(), text: "Image not found."
             return
         }
         
@@ -88,38 +83,46 @@ class MovieController {
             }
 
             Movie movie = movieService.save(movieCommand)
-
-            render "Movie saved successfully!"
-            return
+            render([message: "Movie saved successfully!"] as JSON)
         }
         catch(Exception e) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            response.getWriter().write("There was an error saving the movie.")
-            return
+            render status: HttpStatus.INTERNAL_SERVER_ERROR.value(), text: "There was an error saving the movie."
         }
     }
 
-    def update(MovieCommand movieCommand) {
-        if (!validateCommand(movieCommand)) return
+    def update() {
+        def movieCommand = MovieCommand.fromRequestData(request.JSON)
+
+        if (movieCommand instanceof MovieCommand) {
+            if (!validateCommand(movieCommand)) return
+        } else {
+            badRequest()
+            return
+        }
 
         try {
+            if (request.JSON.image) {
+                ImageCommand imageCommand = ImageCommand.fromRequestData(request.JSON.image)
+                Image image = imageService.save(imageCommand)
+
+                movieCommand.imageId = image.id
+            }
+
             Movie movie = movieService.update(movieCommand)
-            response.setStatus(HttpStatus.OK.value())
+            render([message: "Movie updated successfully!"] as JSON)
         }
         catch(Exception e) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            response.getWriter().write("There was an error saving the movie.")
+            render status: HttpStatus.INTERNAL_SERVER_ERROR.value(), text: "There was an error updating the movie."
         }
     }
 
     def delete(Long id) {
         try {
             Movie movie = movieService.delete(id)
-            render "Movie deleted successfully!"
+            render([message: "Movie deleted successfully!"] as JSON)
         }
         catch(Exception e) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            response.getWriter().write("There was an error deleting the movie.")
+            render status: HttpStatus.INTERNAL_SERVER_ERROR.value(), text: "There was an error deleting the movie."
         }
     }
 }

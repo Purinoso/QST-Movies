@@ -33,7 +33,6 @@ export default class MovieService {
       this.createObserver(movies => {
         this.movies = movies;
         this.moviesSubject.next(movies);
-        console.log(this.movies);
       })
     );
   }
@@ -41,8 +40,7 @@ export default class MovieService {
   private createObserver<T>(next?: (value: T) => any) {
     const observer: ErrorObserver<T> = {
       next: next,
-      error: console.log
-      // error: () => this.snackBarMessageService.showMessage('An error has occurred while connecting to the database.')
+      error: () => this.snackBarMessageService.showMessage('An error has occurred while connecting to the database.')
     };
 
     return observer;
@@ -70,7 +68,7 @@ export default class MovieService {
         this.movies[this.movies.indexOf(movie)].imageUrl = imageUrl;
         this.moviesSubject.next(this.movies);
       }),
-      catchError((error: any) => {
+      catchError(error => {
         if (error.status === 404) {
           this.movies[this.movies.indexOf(movie)].imageUrl = null;
           this.moviesSubject.next(this.movies);
@@ -94,11 +92,12 @@ export default class MovieService {
         title: movieCommand.title,
         description: movieCommand.description,
         rating: movieCommand.rating,
-        duration: movieCommand.duration,
+        duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
         releaseDate: movieCommand.releaseDate,
         trailerLink: movieCommand.trailerLink,
+        imageUrl: movieCommand.image && `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}`,
         genres: movieGenres
-      }
+      };
 
       this.movies.push(movie);
       this.moviesSubject.next(this.movies);
@@ -119,30 +118,27 @@ export default class MovieService {
         title: movieCommand.title,
         description: movieCommand.description,
         rating: movieCommand.rating,
-        duration: movieCommand.duration,
+        duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
         releaseDate: movieCommand.releaseDate,
         trailerLink: movieCommand.trailerLink,
+        imageUrl: movieCommand.image ? `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}` : this.movies[targetMovieIndex].imageUrl,
         genres: movieGenres
       }
 
-      // this.movies[targetMovieIndex] = movieToUpdate;
-      // this.moviesSubject.next(this.movies);
+      this.movies[targetMovieIndex] = movie;
+      this.moviesSubject.next(this.movies);
     });
 
-    // this.httpClient.put<Movie>(this.API_ENDPOINTS.update(movieCommand.id!), movieCommand).subscribe(this.createObserver());
+    this.httpClient.put<Movie>(this.API_ENDPOINTS.update(movieCommand.id!), movieCommand).subscribe(this.createObserver());
   }
 
   deleteMovie(id: number) {
-    console.log(id);
-    console.log(this.movies);
     const targetMovieIndex = this.movies.findIndex(movie => movie.id === id);
     if (targetMovieIndex === -1) return;
 
     this.movies.splice(targetMovieIndex, 1);
     this.moviesSubject.next(this.movies);
 
-    this.httpClient.delete(this.API_ENDPOINTS.delete(id)).subscribe(this.createObserver(value => {
-      console.log(value);
-    }));
+    this.httpClient.delete(this.API_ENDPOINTS.delete(id)).subscribe();
   }
 }

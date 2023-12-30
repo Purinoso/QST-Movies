@@ -10,7 +10,7 @@ export function createImageFromBase64String(name: string, base64String: string):
     if (match && match.length === 3) {
       const image: Image = {
         format: match[1],
-        name: name,
+        name: `${name}.${match[1]}`,
         data: match[2]
       };
 

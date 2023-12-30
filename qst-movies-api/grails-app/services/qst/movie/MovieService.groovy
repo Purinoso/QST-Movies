@@ -33,6 +33,8 @@ class MovieService {
             image: image
         )
 
+        movie.id = movieCommand.id
+
         movieCommand.genreIds.each { genreId ->
             Genre genre = Genre.get(genreId)
             movie.addToGenres(genre)
@@ -45,16 +47,26 @@ class MovieService {
     public Movie update(MovieCommand movieCommand) {
         Movie movie = Movie.get(movieCommand.id)
 
+        if (movieCommand.imageId) {
+            if (movie.image) {
+                Image previousImage = movie.image
+                movie.image = null
+                imageService.delete(previousImage.id)
+            }
+
+            movie.image = imageService.getImage(movieCommand.imageId)
+        }
+
         movie.title = movieCommand.title
         movie.description = movieCommand.description
         movie.rating = movieCommand.rating
+        movie.duration = movieCommand.duration
         movie.releaseDate = movieCommand.releaseDate
         movie.trailerLink = movieCommand.trailerLink
-        movie.image = movieCommand.image
         
-        Genre[] genres = Genre.findAllByIdInList(movieCommand.genreIds ?: [])
         movie.genres.clear()
-        genres.each { genre ->
+        movieCommand.genreIds.each { genreId ->
+            Genre genre = Genre.get(genreId)
             movie.addToGenres(genre)
         }
 
@@ -64,6 +76,12 @@ class MovieService {
 
     public Movie delete(Long id) {
         Movie movie = Movie.get(id)
+
+        if (movie.image) {
+            Image movieImage = movie.image
+            movie.image = null
+            imageService.delete(movieImage.id)
+        }
 
         movie.delete(flush: true, failOnError: true)
         return movie

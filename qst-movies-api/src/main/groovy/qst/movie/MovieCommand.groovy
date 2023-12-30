@@ -26,7 +26,6 @@ class MovieCommand implements Validateable {
         duration nullable: false
         releaseDate nullable: false
         trailerLink nullable: false
-        image nullable: true
         genreIds nullable: false
         imageId nullable: true
     }
@@ -38,13 +37,14 @@ class MovieCommand implements Validateable {
             LocalDate releaseDate = LocalDate.parse(requestData.releaseDate)
 
             MovieCommand movieCommand = new MovieCommand(
+                id: requestData.id,
                 title: requestData.title,
                 description: requestData.description,
                 rating: requestData.rating as Float,
-                trailerLink: requestData.trailerLink,
-                genreIds: requestData.genreIds as Long[],
                 duration: duration,
-                releaseDate: releaseDate
+                releaseDate: releaseDate,
+                trailerLink: requestData.trailerLink,
+                genreIds: requestData.genreIds as Long[]
             )
             
             if (requestData.id) {
