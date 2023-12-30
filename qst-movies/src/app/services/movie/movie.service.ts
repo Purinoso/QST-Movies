@@ -84,61 +84,61 @@ export default class MovieService {
   }
 
   addMovie(movieCommand: MovieCommand) {
-    this.genreService.getGenresSubject().subscribe(genres => {
-      const movieGenres = genres.filter(genre => movieCommand.genreIds.includes(genre.id));
-      const movie: Movie = {
-        id: movieCommand.id!,
-        version: movieCommand.version!,
-        title: movieCommand.title,
-        description: movieCommand.description,
-        rating: movieCommand.rating,
-        duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
-        releaseDate: movieCommand.releaseDate,
-        trailerLink: movieCommand.trailerLink,
-        imageUrl: movieCommand.image && `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}`,
-        genres: movieGenres
-      };
-
-      this.movies.push(movie);
-      this.moviesSubject.next(this.movies);
-    });
-
-    this.httpClient.post<Movie>(this.API_ENDPOINTS.SAVE, movieCommand).subscribe(this.createObserver());
+    this.httpClient.post<Movie>(this.API_ENDPOINTS.SAVE, movieCommand).subscribe(this.createObserver(() => {
+      this.genreService.getGenresSubject().subscribe(genres => {
+        const movieGenres = genres.filter(genre => movieCommand.genreIds.includes(genre.id));
+        const movie: Movie = {
+          id: movieCommand.id!,
+          version: movieCommand.version!,
+          title: movieCommand.title,
+          description: movieCommand.description,
+          rating: movieCommand.rating,
+          duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
+          releaseDate: movieCommand.releaseDate,
+          trailerLink: movieCommand.trailerLink,
+          imageUrl: movieCommand.image && `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}`,
+          genres: movieGenres
+        };
+  
+        this.movies.push(movie);
+        this.moviesSubject.next(this.movies);
+      });
+    }));
   }
 
   udpateMovie(movieCommand: MovieCommand) {
     const targetMovieIndex = this.movies.findIndex(movie => movie.id === movieCommand.id);
     if (targetMovieIndex === -1) return;
-
-    this.genreService.getGenresSubject().subscribe(genres => {
-      const movieGenres = genres.filter(genre => movieCommand.genreIds.includes(genre.id));
-      const movie: Movie = {
-        id: movieCommand.id!,
-        version: movieCommand.version!,
-        title: movieCommand.title,
-        description: movieCommand.description,
-        rating: movieCommand.rating,
-        duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
-        releaseDate: movieCommand.releaseDate,
-        trailerLink: movieCommand.trailerLink,
-        imageUrl: movieCommand.image ? `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}` : this.movies[targetMovieIndex].imageUrl,
-        genres: movieGenres
-      }
-
-      this.movies[targetMovieIndex] = movie;
-      this.moviesSubject.next(this.movies);
-    });
-
-    this.httpClient.put<Movie>(this.API_ENDPOINTS.update(movieCommand.id!), movieCommand).subscribe(this.createObserver());
+    
+    this.httpClient.put<Movie>(this.API_ENDPOINTS.update(movieCommand.id!), movieCommand).subscribe(this.createObserver(() => {
+      this.genreService.getGenresSubject().subscribe(genres => {
+        const movieGenres = genres.filter(genre => movieCommand.genreIds.includes(genre.id));
+        const movie: Movie = {
+          id: movieCommand.id!,
+          version: movieCommand.version!,
+          title: movieCommand.title,
+          description: movieCommand.description,
+          rating: movieCommand.rating,
+          duration: `${movieCommand.duration.split(":")[0]}h ${movieCommand.duration.split(":")[1]}min`,
+          releaseDate: movieCommand.releaseDate,
+          trailerLink: movieCommand.trailerLink,
+          imageUrl: movieCommand.image ? `data:${movieCommand.image?.format};base64,${movieCommand.image?.data}` : this.movies[targetMovieIndex].imageUrl,
+          genres: movieGenres
+        }
+  
+        this.movies[targetMovieIndex] = movie;
+        this.moviesSubject.next(this.movies);
+      });
+    }));
   }
 
   deleteMovie(id: number) {
     const targetMovieIndex = this.movies.findIndex(movie => movie.id === id);
     if (targetMovieIndex === -1) return;
 
-    this.movies.splice(targetMovieIndex, 1);
-    this.moviesSubject.next(this.movies);
-
-    this.httpClient.delete(this.API_ENDPOINTS.delete(id)).subscribe();
+    this.httpClient.delete(this.API_ENDPOINTS.delete(id)).subscribe(this.createObserver(() => {
+      this.movies.splice(targetMovieIndex, 1);
+      this.moviesSubject.next(this.movies);
+    }));
   }
 }
